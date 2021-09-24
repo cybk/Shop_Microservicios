@@ -19,5 +19,12 @@ services:
   basketdb:
     image: redis:alpine
 
+  ordering.api:
+    image: ${DOCKER_REGISTRY-}orderingapi
+    build:
+      context: .
+      dockerfile: Src/Services/Ordering.Api/Dockerfile
+
 volumes:
   mongo_data:
+
