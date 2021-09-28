@@ -1,10 +1,14 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.OpenApi.Models;
 using Ordering.Application;
+using Ordering.Application.Contracts.Persistence;
+using Ordering.Infraestructure.Persistence;
+using Ordering.Infraestructure.Repositories;
 
 namespace Ordering.Api
 {
@@ -20,13 +24,14 @@ namespace Ordering.Api
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddControllers();
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ordering.Api", Version = "v1" });
-            });
 
             services.AddAplicationServices();
+
+            services.AddDbContext<OrderContext>(options => options.UseSqlServer(Configuration.GetConnectionString("OrderingConnectionString")));
+
+            services.AddControllers();
+            services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ordering.Api", Version = "v1" }));
+            services.AddScoped(typeof(IAsyncRepository<>), typeof(RepositoryBase<>));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -22,8 +22,7 @@
 
   <ItemGroup>
     <Folder Include="Behaviors\" />
-    <Folder Include="Features\" />
-    <Folder Include="Mappings\" />
+    <Folder Include="Features\Commands\" />
   </ItemGroup>
 
 </Project>
