@@ -1,9 +1,12 @@
 ﻿using Ordering.Domain.Common;
+using System.ComponentModel.DataAnnotations;
 
 namespace Ordering.Domain.Entities
 {
     public class Order : EntityBase
     {
+        [Required]
+        [StringLength(40)]
         public string UserName { get; set; }
         public decimal TotalPrice { get; set; }
         public string FirstName { get; set; }
