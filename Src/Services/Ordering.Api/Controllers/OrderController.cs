@@ -1,5 +1,6 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Ordering.Application.Features.Commands.CheckoutOrder;
 using Ordering.Application.Features.Queries.GetOrdersList;
 using System;
 using System.Collections.Generic;
@@ -25,6 +26,12 @@ namespace Ordering.Api.Controllers
             var query = new GetOrderListQuery(userName);
             var orders = await mediator.Send(query);
             return Ok(orders);
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<int>> CheckoutOrder([FromBody] CheckoutOrderCommand command)
+        {
+            return Ok(await mediator.Send(command));
         }
     }
 }
