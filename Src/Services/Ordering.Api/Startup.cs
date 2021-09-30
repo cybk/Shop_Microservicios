@@ -1,15 +1,18 @@
 using FluentValidation;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Ordering.Application;
 using Ordering.Application.Contracts.Persistence;
 using Ordering.Infraestructure.Persistence;
 using Ordering.Infraestructure.Repositories;
+using System.Text;
 
 namespace Ordering.Api
 {
@@ -30,6 +33,24 @@ namespace Ordering.Api
 
             services.AddDbContext<OrderContext>(options => options.UseSqlServer(Configuration.GetConnectionString("OrderingConnectionString")));
 
+            //auth
+            services.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(x=>
+            {
+                x.RequireHttpsMetadata = false;
+                x.SaveToken = true;
+                x.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(Configuration.GetValue<string>("Identity:key"))),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
+
             services.AddControllers();
             services.AddSwaggerGen(c => c.SwaggerDoc("v1", new OpenApiInfo { Title = "Ordering.Api", Version = "v1" }));
             services.AddScoped(typeof(IAsyncRepository<>), typeof(RepositoryBase<>));
@@ -44,6 +65,8 @@ namespace Ordering.Api
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "Ordering.Api v1"));
             }
+
+            app.UseAuthentication();
 
             app.UseRouting();
 

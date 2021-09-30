@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Ordering.Application.Features.Commands.CheckoutOrder;
 using Ordering.Application.Features.Commands.DeleteOrder;
@@ -11,6 +12,7 @@ namespace Ordering.Api.Controllers
 {
     [ApiController]
     [Route("api/v1/[controller]")]
+    [Authorize]
     public class OrderController : ControllerBase
     {
         private readonly IMediator mediator;
@@ -21,6 +23,9 @@ namespace Ordering.Api.Controllers
         }
 
         [HttpGet("{userName}")]
+        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "User")]
+        [Authorize(Roles = "Guest")]
         public async Task<ActionResult<IEnumerable<OrdersViewModel>>> GetOrdersByUserName(string userName)
         {
             var query = new GetOrderListQuery(userName);
@@ -35,6 +40,8 @@ namespace Ordering.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
+        [Authorize(Roles = "User")]
         public async Task<ActionResult> DeleteOrder(int id)
         {
             var command = new DeleteOrderCommand() { Id = id };
